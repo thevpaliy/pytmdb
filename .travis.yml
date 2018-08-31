@@ -8,7 +8,11 @@ python:
 
 install:
   - pip install -r requirements.txt
+  - pip install codecov
 
-script: nosetests --with-doctest
+script:
+  - coverage run -m unittest discover -s tests/
+after_success:
+  - codecov
 sudo: false
 cache: pip

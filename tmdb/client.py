@@ -5,12 +5,11 @@ import os
 import time
 import functools
 import numbers
-from models import resource
+import tmdb
+from tmdb.models import resource
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-USER_AGENT = 'The Movie Database API Wrapper'
 
 class Client(object):
   host = 'api.themoviedb.org/3'
@@ -25,11 +24,11 @@ class Client(object):
     self._debug = kwargs.get('debug', False)
     self._allow_redirects = kwargs.get('allow_redirects', False)
     self._timeout = kwargs.get('timeout', None)
-    self._access_token = kwargs.get('access_token', self._generate_access_token())
+    self._access_token = kwargs.get('access_token', None)
     self._authorize_url = kwargs.get('authorize_url', None)
     self._session_id = kwargs.get('session_id', None)
     if not self._authorize_url and not self._session_id:
-      if any([key in kwargs for key in 'redirect_uri', 'redirect_url']):
+      if any([key in kwargs for key in ('redirect_uri', 'redirect_url')]):
         self.redirect_uri = kwargs.get('redirect_uri', kwargs['redirect_url'])
     if (not self._session_id and
           ('username' in kwargs and 'password' in kwargs)):
@@ -93,7 +92,7 @@ class Client(object):
       'allow_redirects': self._allow_redirects,
       'timeout': self._timeout,
       'headers': {
-        'User-Agent': USER_AGENT
+        'User-Agent': tmdb.USER_AGENT
       }
     }
 
