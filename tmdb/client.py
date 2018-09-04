@@ -17,6 +17,22 @@ class Client(object):
   use_ssl = True
 
   def __init__(self, **kwargs):
+    r"""
+    :param use_ssl (optional): use HTTP or HTTPS for requests. Default: True
+    :type use_ssl: bool
+    :param host (optional): host for every request. Default: `api.themoviedb.org/3`
+    :param allow_redirects (optional): enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection.
+    :type allow_redirects (optional): bool
+    :param api_key: a mandatory API key for every request.
+    :param timeout:how many seconds to wait for the server to send data
+        before giving up, as a float, or a :ref:`(connect timeout, read
+        timeout) <timeouts>` tuple.
+    :type timeout: float or tuple
+    :param access_token: a valid access token that will allow us to create a session id.
+    :param username (optional): a username with which we can verify an access token in order to obtain a session id.
+    :param password (optional): a password with which we can verify an access token in order to obtain a session id.
+    :param session id (optional): a session id with which we can make DELETE, PUT, requests, etc. 
+    """
     self._use_ssl = kwargs.get('use_ssl', self.use_ssl)
     self._host = kwargs.get('host', self.host)
     self._api_key = kwargs.get('api_key', os.environ.get('api_key', None))

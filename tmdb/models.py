@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class resource(object):
   def __init__(self, **data):
     for key, value in data.items():
