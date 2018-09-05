@@ -1,6 +1,6 @@
 # pytmdb
 
-[![Build Status](https://travis-ci.org/thevpaliy/pytmdb.svg?branch=master)
+![Build Status](https://travis-ci.org/thevpaliy/pytmdb.svg?branch=master)
 
 
 ## License ##
