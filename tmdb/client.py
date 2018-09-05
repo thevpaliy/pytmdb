@@ -155,6 +155,3 @@ class Client(object):
   def __log(self, info):
     if self._debug:
       logger.info(info)
-
-if __name__ == '__main__':
-  main()
