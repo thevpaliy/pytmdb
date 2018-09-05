@@ -1,53 +1,52 @@
-from unittest import TestCase
-from mockito import when, mock, unstub, verify, never, spy
-from test import support
-from tmdb.client import Client
 import requests
+import mock
+from utils import MockResponse
+from unittest import TestCase
+from test import support
+try:
+  from tmdb.client import Client
+except ImportError:
+  import os, sys
+  sys.path.insert(0, '..')
+  from tmdb.client import Client
+from contextlib import contextmanager
+from requests.exceptions import HTTPError
 
 class ClientTestCase(TestCase):
 
-  def build_response(self,**kwargs):
-    response = mock({}.update(kwargs),
-        spec=requests.Request)
-    when(response).json().thenReturn({})
-    return response
+  @contextmanager
+  def response_status(self, request, status=None, json=None, url=None):
+    response = MockResponse(status, json, url)
+    request.return_value = response
+    request.expects_call().returns(response)
+    yield
 
-  def mock_calls(self, **kwargs):
-    if 'all' in kwargs:
-      for method in 'get post delete'.split():
-        kwargs[method] = kwargs['all']
-    if 'get' in kwargs:
-      when(requests).get(...).thenReturn(kwargs['get'])
-    if 'delete' in kwargs:
-      when(requests).delete(...).thenReturn(kwargs['post'])
-    if 'post' in kwargs:
-      when(requests).post(...).thenReturn(kwargs['delete'])
+  @mock.patch('requests.get')
+  def test_get_request_fails(self, fake):
+    client = Client()
+    for status in (500, 501, 502, 504, 505):
+      with self.response_status(fake, status):
+        self.assertRaises(HTTPError, lambda: client.get('/path'))
 
-  def setUp(self):
-    self.mock_calls(all=self.build_response())
+  @mock.patch('requests.post')
+  def test_post_request_fails(self, fake):
+    client = Client()
+    for status in (500, 501, 502, 504, 505):
+      with self.response_status(fake, status):
+        self.assertRaises(HTTPError, lambda: client.post('/path'))
 
-  def tearDown(self):
-    unstub()
+  @mock.patch('requests.delete')
+  def test_delete_request_fails(self, fake):
+    client = Client()
+    for status in (500, 501, 502, 504, 505):
+      with self.response_status(fake, status):
+        self.assertRaises(HTTPError, lambda: client.delete('/path'))
 
-  def test_getattr_invalid_method(self):
-    client = Client(unknown='unknown')
+  def test_method_does_not_exist(self):
     with self.assertRaises(AttributeError):
-      client.unknown
-
-  def test_logout_nothing(self):
-    Client().logout()
-    verify(requests, times=never).delete(...)
-
-  def test_logout_success(self):
-    client = Client(session_id='session_id')
-    client.logout()
-    verify(requests, times=1).delete(...)
-
-  # TODO: provide a bit more comprehensive testing
-  def test_login_nothing(self):
-    Client(access_token='token').login('username', 'password')
-    verify(requests, times=1).get(...)
-    verify(requests, times=1).post(...)
+      Client().method()
+    with self.assertRaises(TypeError):
+      Client()._request('unknown')
 
 def main():
   support.run_unittest(ClientTestCase)

@@ -31,7 +31,7 @@ class Client(object):
     :param access_token: a valid access token that will allow us to create a session id.
     :param username (optional): a username with which we can verify an access token in order to obtain a session id.
     :param password (optional): a password with which we can verify an access token in order to obtain a session id.
-    :param session id (optional): a session id with which we can make DELETE, PUT, requests, etc. 
+    :param session id (optional): a session id with which we can make DELETE, PUT, requests, etc.
     """
     self._use_ssl = kwargs.get('use_ssl', self.use_ssl)
     self._host = kwargs.get('host', self.host)
@@ -147,10 +147,14 @@ class Client(object):
         kwargs['params']['session_id'] = self._session_id
       response = request(url, **kwargs)
     self.__log('status code:%s' % (response.status_code))
+    response.raise_for_status()
     content = response.json()
     self.__log('%s\n' % (content))
-    return resource(**content)
+    return resource(status_code = response.status_code, **content)
 
   def __log(self, info):
     if self._debug:
       logger.info(info)
+
+if __name__ == '__main__':
+  main()
