@@ -43,6 +43,7 @@ class Client(object):
     self._access_token = kwargs.get('access_token', None)
     self._authorize_url = kwargs.get('authorize_url', None)
     self._session_id = kwargs.get('session_id', None)
+    self._raise_for_status = kwargs.get('raise_for_status', False)
     if not self._authorize_url and not self._session_id:
       if any([key in kwargs for key in ('redirect_uri', 'redirect_url')]):
         self.redirect_uri = kwargs.get('redirect_uri', kwargs['redirect_url'])
@@ -147,7 +148,8 @@ class Client(object):
         kwargs['params']['session_id'] = self._session_id
       response = request(url, **kwargs)
     self.__log('status code:%s' % (response.status_code))
-    response.raise_for_status()
+    if self._raise_for_status:
+      response.raise_for_status()
     content = response.json()
     self.__log('%s\n' % (content))
     return resource(status_code = response.status_code, **content)

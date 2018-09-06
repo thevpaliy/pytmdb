@@ -23,21 +23,21 @@ class ClientTestCase(TestCase):
 
   @mock.patch('requests.get')
   def test_get_request_fails(self, fake):
-    client = Client()
+    client = Client(raise_for_status=True)
     for status in (500, 501, 502, 504, 505):
       with self.response_status(fake, status):
         self.assertRaises(HTTPError, lambda: client.get('/path'))
 
   @mock.patch('requests.post')
   def test_post_request_fails(self, fake):
-    client = Client()
+    client = Client(raise_for_status=True)
     for status in (500, 501, 502, 504, 505):
       with self.response_status(fake, status):
         self.assertRaises(HTTPError, lambda: client.post('/path'))
 
   @mock.patch('requests.delete')
   def test_delete_request_fails(self, fake):
-    client = Client()
+    client = Client(raise_for_status=True)
     for status in (500, 501, 502, 504, 505):
       with self.response_status(fake, status):
         self.assertRaises(HTTPError, lambda: client.delete('/path'))
@@ -47,6 +47,42 @@ class ClientTestCase(TestCase):
       Client().method()
     with self.assertRaises(TypeError):
       Client()._request('unknown')
+
+  @mock.patch('requests.get')
+  def test_ignore_failing_get_request(self, fake):
+    client = Client(raise_for_status=False)
+    for status in (500, 501, 502, 504, 505):
+      with self.response_status(fake, status):
+        try:
+          client.get('/path')
+          Client().get('path') # test the default version
+        except HTTPError:
+          self.fail('client.get() raises an exception when'
+            '``raise_for_status`` is set to False')
+
+  @mock.patch('requests.post')
+  def test_ignore_failing_post_request(self, fake):
+    client = Client(raise_for_status=False)
+    for status in (500, 501, 502, 504, 505):
+      with self.response_status(fake, status):
+        try:
+          client.post('/path')
+          Client().post('path') # test the default version
+        except HTTPError:
+          self.fail('client.post() raises an exception when'
+            '``raise_for_status`` is set to False')
+
+  @mock.patch('requests.delete')
+  def test_ignore_failing_delete_request(self, fake):
+    client = Client(raise_for_status=False)
+    for status in (500, 501, 502, 504, 505):
+      with self.response_status(fake, status):
+        try:
+          client.delete('/path')
+          Client().delete('path') # test the default version
+        except HTTPError:
+          self.fail('client.delete() raises an exception when'
+            '``raise_for_status`` is set to False')
 
 def main():
   support.run_unittest(ClientTestCase)
