@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-import requests
-import logging
 import os
 import time
 import functools
 import numbers
+import logging
+import requests
 import tmdb
-from tmdb.models import resource
+from tmdb.models import Resource
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -152,7 +152,7 @@ class Client(object):
       response.raise_for_status()
     content = response.json()
     self.__log('%s\n' % (content))
-    return resource(status_code = response.status_code, **content)
+    return Resource(status_code = response.status_code, **content)
 
   def __log(self, info):
     if self._debug:

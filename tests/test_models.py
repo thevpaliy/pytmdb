@@ -1,7 +1,7 @@
 import unittest
 
 from test import test_support
-from tmdb.models import resource
+from tmdb.models import Resource
 
 class ResourceTest(unittest.TestCase):
   pass
