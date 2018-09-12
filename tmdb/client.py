@@ -85,7 +85,7 @@ class Client(object):
 
   @property
   def api_key(self):
-    if self.api_key is None:
+    if self._api_key is None:
       self._api_key = os.environ['api_key']
     return self._api_key
 
